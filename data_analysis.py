@@ -165,21 +165,9 @@ def merge_parental_bias(final_df, main_dataset_path):
 
 
 # --- הפעלה מרכזית ---
-def run_comprehensive_lisas_analysis(root_dir, main_dataset_path="main_dataset.csv"):
-    raw_list = []
-    for root, _, files in os.walk(root_dir):
-        for file in files:
-            if file.endswith('.tsv'):
-                parts = file.split('_')
-                sub, task, run = parts[0], parts[2], parts[3]
-                df_file = pd.read_csv(os.path.join(root, file), sep='\t')
-                raw_list.append({
-                    'subject': sub, 'task': task, 'run': run,
-                    'lisas': calculate_lisas(df_file), 'acc': df_file['accuracy'].mean()
-                })
-    
-    df = pd.DataFrame(raw_list)
-    df = standardize_scores(df)
+def run_comprehensive_lisas_analysis(raw_data_df, main_dataset_path="main_dataset.csv"):
+
+    df = standardize_scores(raw_data_df)
     pivot_df = pivot_to_subject_level(df)
 
     # כל החישובים הקוגניטיביים מרוכזים כאן
@@ -191,11 +179,3 @@ def run_comprehensive_lisas_analysis(root_dir, main_dataset_path="main_dataset.c
     # שמירה ל-CSV מסודר
     # final_df.round(3).to_csv("final_analysis_results.csv", index=False)
     return final_df
-
-df = run_comprehensive_lisas_analysis('trial_data')
-print(df.head(40))
-
-
-
-
-
