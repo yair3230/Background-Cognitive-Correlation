@@ -3,12 +3,14 @@ import numpy as np
 import logging as log
 import os
 
+from consts import ISCO_MAPPING
+
 
 def normalize_grades_column(series, base, limit):
     """
     Takes a scale of <base> to <limit> and turn it into a scale of 1 to 100
     :param series: list of grades
-    :param limit: The minimum possible score
+    :param base: The minimum possible score
     :param limit: The maximum possible score
     :return: Normalized series
     """
@@ -79,15 +81,15 @@ def calculate_lisas(df):
 # Unemployed = Nan , Self-employed = 65 
 def map_isco_score(occ):
     occ_str = str(occ).strip().lower()
-    if any(x in occ_str for x in ['unemployed', 'nan', 'none']): return np.nan
-    if 'self-employed' in occ_str: return 65
-    
-    mapping = {
-        '11': 85, '12': 75, '21': 95, '22': 55, '23': 35, '24': 70, '26': 15,
-        '32': 65, '33': 60, '34': 50, '41': 45, '42': 30, '43': 45, '44': 40,
-        '52': 25, '53': 10, '54': 50, '83': 80
-    }
-    return mapping.get(occ_str[:2], np.nan)
+
+    # Unemployed = Nan , Self-employed = 65
+    if occ_str in ['unemployed', 'nan', 'none']:
+        return np.nan
+    if 'self-employed' in occ_str:
+        return 65
+
+    return ISCO_MAPPING.get(occ_str[:2], np.nan)
+
 
 # Z-score standardization
 def standardize_scores(df):
