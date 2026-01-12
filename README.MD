@@ -70,6 +70,8 @@ Used as a reference table for mapping occupational categories (ISCO standards) d
 ## 🧱 Project Structure
 
 The repository follows a modular structure where **logic**, **analysis**, and **visualization** are separated.
+> 📝 *לפחות כך צריך להיות*
+
 
 * `main.ipynb`
 Main end-to-end notebook.
@@ -195,6 +197,7 @@ To run the project tests:
 pytest -q
 
 ```
+
 
 
 
