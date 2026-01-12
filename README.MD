@@ -37,6 +37,7 @@ The analysis is based on a merged subject-level table (`main_dataset.csv`) toget
 How is the socio-educational context (including socio-economic background, school characteristics, and parental professional background) related to mathematical performance and deductive reasoning abilities?
 2. **Incremental Contribution Question (Modeling)**
 Does this relationship remain significant after controlling for individual cognitive variables, specifically IQ components (VIQ, PIQ, FSIQ) and working memory?
+📝 הערה: אמור להיות כחלק מהEDA .
 3. **Interpretation Question (Insights)**
 What can we conclude about the relative weight of *environment* (Nurture) in the development of different thinking skills (mathematics vs. logic/reasoning)?
 
@@ -194,6 +195,7 @@ To run the project tests:
 pytest -q
 
 ```
+
 
 
 
