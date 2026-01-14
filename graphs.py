@@ -1,8 +1,11 @@
+import logging as log
+
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_analysis import model_stage1, model_stage2
 import statsmodels.api as sm
 import scipy.stats as stats
+
+from data_analysis import model_stage1, model_stage2
 
 
 def plot_correlation_heatmap(corr_matrix, title="Spearman Correlations"):
@@ -159,23 +162,23 @@ def father_income_correlation(df):
 
 def stage_a(df):
     result = model_stage1(df)
-    print(result.summary())
+    log.log(log.INFO, result.summary())
 
-    print("Stage A N:", int(result.nobs))
+    log.log(log.INFO, "Stage A N:", int(result.nobs))
 
 
 def stage_b(df):
     result = model_stage2(df)
-    print(result.summary())
+    log.log(log.INFO, result.summary())
 
 
-def hierarchial_model(df):
+def hierarchical_model(df):
     stage1 = model_stage1(df)
     stage2 = model_stage2(df)
     delta_r2 = stage2.rsquared - stage1.rsquared
-    print(f"ΔR² (Stage B – Stage A) = {delta_r2:.3f}")
+    log.log(log.INFO, f"ΔR² (Stage B – Stage A) = {delta_r2:.3f}")
     anova_results = sm.stats.anova_lm(stage1, stage2)
-    print(anova_results)
+    log.log(log.INFO, anova_results)
 
 
 def residuals_graph(df):
