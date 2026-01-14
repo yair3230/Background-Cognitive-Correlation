@@ -177,8 +177,8 @@ def standardize_scores(df):
 def pivot_to_subject_level(df):
     """Reorganizing data (subject focus)"""
     df['col_name'] = df['task'].str.replace('task-', '') + "_" + df['run']
-    pivot_df = df.pivot(index='subject', columns='col_name', values='z')
-    pivot_df['overall_accuracy'] = df.groupby('subject')['acc'].mean()
+    pivot_df = df.pivot(index='participant_id', columns='col_name', values='z')
+    pivot_df['overall_accuracy'] = df.groupby('participant_id')['acc'].mean()
     return pivot_df.reset_index()
 
 
@@ -221,7 +221,7 @@ def merge_parental_bias(final_df, main_dataset_path):
         return final_df
 
     parents_df = pd.read_csv(main_dataset_path)
-    parents_df.rename(columns={'participant_id': 'subject'}, inplace=True)
+    # parents_df.rename(columns={'participant_id': 'subject'}, inplace=True)
 
     parents_df['mother_score'] = parents_df['mother_occupation'].apply(map_isco_score)
     parents_df['father_score'] = parents_df['father_occupation'].apply(map_isco_score)
@@ -229,7 +229,7 @@ def merge_parental_bias(final_df, main_dataset_path):
 
     # מיזוג - שומרים על אבא, אמא וממוצע
     return final_df.merge(
-        parents_df[['subject', 'mother_score', 'father_score', 'parental_bias']], on='subject', how='left'
+        parents_df[['participant_id', 'mother_score', 'father_score', 'parental_bias']], on='participant_id', how='left'
     )
 
 
