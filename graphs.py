@@ -157,16 +157,14 @@ def father_income_correlation(df):
     plt.show()
 
 
-def stage_A(df):
-
+def stage_a(df):
     result = model_stage1(df)
     print(result.summary())
 
     print("Stage A N:", int(result.nobs))
 
 
-def stage_B(df):
-
+def stage_b(df):
     result = model_stage2(df)
     print(result.summary())
 
@@ -225,6 +223,7 @@ def influence_plot(df):
     plt.tight_layout()
     plt.show()
 
+
 def bias_vs_stem(df):
     sns.regplot(
         x="parental_bias_z",
@@ -237,6 +236,7 @@ def bias_vs_stem(df):
     plt.tight_layout()
     plt.show()
 
+
 def bias_vs_verbal(df):
     sns.regplot(
         x="parental_bias_z",
@@ -248,6 +248,7 @@ def bias_vs_verbal(df):
     plt.title("Parental bias vs Verbal ability")
     plt.tight_layout()
     plt.show()
+
 
 def bias_vs_academic(df):
     sns.regplot(

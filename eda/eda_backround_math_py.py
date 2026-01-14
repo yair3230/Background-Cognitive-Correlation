@@ -1,6 +1,4 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
 
 from graphs import plot_correlation_heatmap
@@ -56,9 +54,9 @@ def prepare_eda_dataframe(df, background_vars, math_vars):
     eda_df = df[background_vars + math_vars].copy()
 
     # Display basic info
-    print("\n--- EDA DataFrame Info ---")
+    print("\n--- eda DataFrame Info ---")
     print(eda_df.info())
-    print("\n--- EDA DataFrame Description ---")
+    print("\n--- eda DataFrame Description ---")
     print(eda_df.describe())
 
     return eda_df

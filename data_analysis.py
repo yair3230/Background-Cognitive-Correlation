@@ -5,7 +5,7 @@ import numpy as np
 import logging as log
 import statsmodels.api as sm
 
-from consts import ISCO_MAPPING
+from consts import ISCO_MAPPING, STEM_VARS, VERBAL_VARS
 
 
 def series_to_z_score(series, avg, std):
@@ -22,7 +22,8 @@ def standardize(series, invert=False):
 
 def convert_strings_to_numbers(series):
     """Convert a string representing a grade to a number"""
-    series = series.replace("<1", 0)
+    less_than_one = "<1"
+    series = series.replace(less_than_one, 0)
     series = pd.to_numeric(series)
     return series
 
@@ -52,8 +53,6 @@ def fetch_total_math_score(df):
     result = series_to_z_score(df['WJ-III_MathFluency_StS'], hundred_avg, hundred_std)
     result += series_to_z_score(df['CMAT_BasicCalc_Comp_Quotient'], hundred_avg, hundred_std)
     result += series_to_z_score(df['WASI_PIQ'], hundred_avg, hundred_std)
-    # for column_name in hundred_column_names:
-    #     result += series_to_z_score(df[column_name], hundred_avg, hundred_std)
 
     for column_name in nineteen_limit_columns:
         series = convert_strings_to_numbers(df[column_name])
@@ -128,37 +127,34 @@ def fetch_total_memory_score(df):
 
 
 def calc_parents_income_level(df):
+    unemployed = 'U'
+    self_employed = 'S'
     for parent in ['father', 'mother']:
         # Take only the first number of occupation
         parent_jobs = df[f'{parent}_occupation'].str[0]
 
         # Unemployed = 9
-        parent_jobs = parent_jobs.replace('U', 9)
+        parent_jobs = parent_jobs.replace(unemployed, 9)
 
         # Self employed =6
-        parent_jobs = parent_jobs.replace('S', 6)
+        parent_jobs = parent_jobs.replace(self_employed, 6)
 
         # Nan = 9
         parent_jobs = parent_jobs.fillna(9)
         parent_jobs = pd.to_numeric(parent_jobs)
-        parent_jobs = 9 - parent_jobs
-        df[f'{parent}_income_level'] = parent_jobs
 
         # Instead of "1=rich" flip to "1=poor"
+        parent_jobs = 9 - parent_jobs
+        df[f'{parent}_income_level'] = parent_jobs
 
     return df
 
 
 def model_stage1(df):
-    # 'total_verbal_score'
-    # 'total_memory_score'
-
     # Dependent variable
     y = df['total_math_score']
 
-    wm_col = "AWMA-S_VerbalWM_StS_t2"
-
-    x_stage1 = df[['total_verbal_score', wm_col]]
+    x_stage1 = df[['total_verbal_score', 'total_memory_score']]
 
     x_stage1 = sm.add_constant(x_stage1)
 
@@ -171,6 +167,7 @@ def model_stage2(df):
     x_stage2 = df[
         [
             'total_verbal_score',
+            'total_memory_score',
             "mother_highest_grade",
             "father_highest_grade",
             "regular_classroom",
@@ -221,12 +218,6 @@ def map_isco_score(occ):
     return ISCO_MAPPING.get(occ_str[:2], np.nan)
 
 
-# Z-score standardization
-def standardize_scores(df):
-    df['z'] = df.groupby('task')['lisas'].transform(lambda x: (x - x.mean()) / x.std() * -1)
-    return df
-
-
 def pivot_to_subject_level(df):
     """Reorganizing data (subject focus)"""
     df['col_name'] = df['task'].str.replace('task-', '') + "_" + df['run']
@@ -267,7 +258,7 @@ def calculate_metrics(pivot_df):
     return pivot_df
 
 
-def merge_parental_bias(final_df, main_dataset_path, stem_vars, verbal_vars):
+def merge_parental_bias(final_df, main_dataset_path):
     """
     Merges parental occupation scores and cognitive variables from the main dataset
     """
@@ -282,7 +273,7 @@ def merge_parental_bias(final_df, main_dataset_path, stem_vars, verbal_vars):
     parents_df['parental_bias'] = parents_df[['mother_score', 'father_score']].mean(axis=1)
 
     # Prepare list of available columns (excluding ID to control its position)
-    all_vars = list(set(stem_vars + verbal_vars + ['WASI_FSIQ', 'parental_bias']))
+    all_vars = list(set(STEM_VARS + VERBAL_VARS + ['WASI_FSIQ', 'parental_bias']))
     available_cols = [c for c in all_vars if c in parents_df.columns]
 
     # Merge based on participant_id present in both dataframes
@@ -312,41 +303,20 @@ def run_integrated_analysis():
     # Group by participant_id without converting it to index (prevents 'subject' renaming issues)
     df_lisas = pd.DataFrame(raw_list).groupby('participant_id', as_index=False)['lisas'].mean()
 
-    # --- B. Define Poles (STEM vs Verbal variables) ---
-    stem_vars = [
-        'lisas',
-        'AWMA-S_VisuoSpatialSTM_StS',
-        'AWMA-S_VisuoSpatialWM_StS',
-        'CMAT_BasicCalc_Comp_Quotient',
-        'KeyMath_Numeration_ScS',
-        'KeyMath_Measurement_ScS',
-        'KeyMath_ProblemSolving_ScS',
-        'WASI_PIQ',
-    ]
+    # --- B. Load and Merge Main Dataset ---
+    final_df = merge_parental_bias(df_lisas, 'main_dataset.csv')
 
-    verbal_vars = [
-        'AWMA-S_VerbalSTM_StS',
-        'AWMA-S_VerbalWM_StS',
-        'CTOPP_PhonAwareness_Comp',
-        'CTOPP_RapidNaming_Comp',
-        'TOWRE_Total_StS',
-        'WASI_VIQ',
-    ]
-
-    # --- C. Load and Merge Main Dataset ---
-    final_df = merge_parental_bias(df_lisas, 'main_dataset.csv', stem_vars, verbal_vars)
-
-    # --- D. Global Standardization Function ---
+    # --- C. Global Standardization Function ---
     # Calculate Z-scores for all relevant variables
-    for var in stem_vars + verbal_vars + ['WASI_FSIQ', 'parental_bias']:
+    for var in STEM_VARS + VERBAL_VARS + ['WASI_FSIQ', 'parental_bias']:
         if var in final_df.columns:
             # Invert lisas so higher score means better performance (matching other metrics)
             invert = True if 'lisas' in var.lower() else False
             final_df[f'{var}_z'] = standardize(final_df[var], invert=invert)
 
-    # --- E. Calculate Indices and Cognitive Bias ---
-    final_df['STEM_Index'] = final_df[[f'{v}_z' for v in stem_vars if f'{v}_z' in final_df.columns]].mean(axis=1)
-    final_df['Verbal_Index'] = final_df[[f'{v}_z' for v in verbal_vars if f'{v}_z' in final_df.columns]].mean(axis=1)
+    # --- D. Calculate Indices and Cognitive Bias ---
+    final_df['STEM_Index'] = final_df[[f'{v}_z' for v in STEM_VARS if f'{v}_z' in final_df.columns]].mean(axis=1)
+    final_df['Verbal_Index'] = final_df[[f'{v}_z' for v in VERBAL_VARS if f'{v}_z' in final_df.columns]].mean(axis=1)
     final_df['Child_Cognitive_Bias'] = final_df['STEM_Index'] - final_df['Verbal_Index']
 
     # --- F. Final Formatting and Output ---
@@ -356,9 +326,9 @@ def run_integrated_analysis():
 
     correlation = final_df['Child_Cognitive_Bias'].corr(final_df['parental_bias'])
 
-    print(f"Success! The correlation is: {correlation:.3f}")
-    print("\n--- Top 10 rows of final dataframe ---")
-    print(final_df.head(10))
+    log.log(log.INFO, f"Success! The correlation is: {correlation:.3f}")
+    log.log(log.INFO, "\n--- Top 10 rows of final dataframe ---")
+    log.log(log.INFO, final_df.head(10))
 
     # Save to CSV without the pandas internal index
     final_df.to_csv('analysis_results_full.csv', index=False)
@@ -374,7 +344,7 @@ def compute_bias_correlation(eda_df: pd.DataFrame) -> pd.DataFrame:
       - Spearman is used because education levels are ordinal.
 
     Args:
-        eda_df (pd.DataFrame): EDA dataframe.
+        eda_df (pd.DataFrame): eda dataframe.
 
     Returns:
         pd.DataFrame: Spearman correlation matrix.
