@@ -95,3 +95,60 @@ def mother_education_math(df):
     plt.ylabel("Math STD score")
     plt.title(f"Correlation between Mother's Grade and child's Math STD (r = {corr_val:.2f})")
     plt.show()
+
+
+def race_correlation(df):
+    median_scores = df.groupby('race')['total_math_score'].median().sort_values(ascending=False)
+
+    # Create the bar chart
+    plt.figure(figsize=(10, 6))
+    colors = ['yellow', 'white', 'brown', 'red', 'black']
+    median_scores.plot(kind='bar', color=colors, edgecolor='black')
+    plt.axhline(y=0, color='r', linestyle='--', linewidth=2, label='Zero line')
+
+    # Add labels and title
+    plt.title('Median Total Math Score by race', fontsize=14)
+    plt.xlabel('Race', fontsize=12)
+    plt.ylabel('Median Math Score', fontsize=12)
+    plt.xticks(rotation=45)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+
+def income_correlation(df, parent):
+    median_scores = df.groupby('race')[f'{parent}_income_level'].mean().sort_values(ascending=False)
+
+    # Create the bar chart
+    plt.figure(figsize=(10, 6))
+    # colors = ['yellow', 'white', 'black', 'red', 'brown']
+    plt.axhline(y=0, color='r', linestyle='--', linewidth=2, label='Zero line')
+
+    # Add labels and title
+    plt.title('Income level by race', fontsize=14)
+    plt.xlabel('Race', fontsize=12)
+    plt.ylabel('Income level', fontsize=12)
+
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    return median_scores
+
+
+def mother_income_correlation(df):
+    median_scores = income_correlation(df, 'mother')
+
+    # Create the bar chart
+    colors = ['yellow', 'white', 'black', 'red', 'brown']
+    median_scores.plot(kind='bar', color=colors, edgecolor='black')
+    plt.xticks(rotation=45)
+    plt.show()
+
+
+def father_income_correlation(df):
+    median_scores = income_correlation(df, 'father')
+
+    # Create the bar chart
+    colors = ['yellow', 'red', 'brown', 'white', 'black']
+    median_scores.plot(kind='bar', color=colors, edgecolor='black')
+    plt.xticks(rotation=45)
+    plt.show()

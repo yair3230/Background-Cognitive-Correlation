@@ -112,6 +112,29 @@ def fetch_total_verbal_score(df):
     return final_result
 
 
+def calc_parents_income_level(df):
+    for parent in ['father', 'mother']:
+
+        # Take only the first number of occupation
+        parent_jobs = df[f'{parent}_occupation'].str[0]
+
+        # Unemployed = 9
+        parent_jobs = parent_jobs.replace('U', 9)
+
+        # Self employed =6
+        parent_jobs = parent_jobs.replace('S', 6)
+
+        # Nan = 9
+        parent_jobs = parent_jobs.fillna(9)
+        parent_jobs = pd.to_numeric(parent_jobs)
+        parent_jobs = 9 - parent_jobs
+        df[f'{parent}_income_level'] =parent_jobs
+
+        # Instead of "1=rich" flip to "1=poor"
+
+    return df
+
+
 def calculate_lisas(df):
     """
     Calculating LISAS - Linear Integrated Speed-Accuracy Score
