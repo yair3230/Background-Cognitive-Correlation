@@ -22,4 +22,4 @@ ISCO_MAPPING = {
 
 BACKGROUND_VARS = ["mother_highest_grade", "father_highest_grade", "school_type", "regular_classroom"]
 
-STD_VARS = ['total_math_score', 'total_verbal_score']
+STD_VARS = ['total_math_score', 'total_verbal_score', 'total_memory_score']

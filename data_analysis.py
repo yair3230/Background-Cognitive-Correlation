@@ -8,24 +8,6 @@ import statsmodels.api as sm
 from consts import ISCO_MAPPING
 
 
-def normalize_grades_column(series, base, limit):
-    """
-    Takes a scale of <base> to <limit> and turn it into a scale of 1 to 100
-    :param series: list of grades
-    :param base: The minimum possible score
-    :param limit: The maximum possible score
-    :return: Normalized series
-    """
-    if limit < 1:
-        raise ArithmeticError('normalize_grades_column cannot get a limit smaller than 1')
-    if limit < base:
-        raise ArithmeticError('Limit cannot be smaller than base')
-    result = series - base
-    result = result / limit
-    result *= 100
-    return result
-
-
 def series_to_z_score(series, avg, std):
     # Fill na with avg
     result = series.fillna(avg)
@@ -62,12 +44,14 @@ def fetch_total_math_score(df):
     nineteen_limit_std = 3
 
     # 100 is avg, 15 is std
-    hundred_column_names = ['WJ-III_MathFluency_StS', 'CMAT_BasicCalc_Comp_Quotient']
+    hundred_column_names = ['WJ-III_MathFluency_StS', 'CMAT_BasicCalc_Comp_Quotient', 'WASI_PIQ',
+                            'AWMA-S_VisuoSpatialSTM_StS', 'AWMA-S_VisuoSpatialWM_StS']
     hundred_avg = 100
     hundred_std = 15
 
     result = series_to_z_score(df['WJ-III_MathFluency_StS'], hundred_avg, hundred_std)
     result += series_to_z_score(df['CMAT_BasicCalc_Comp_Quotient'], hundred_avg, hundred_std)
+    result += series_to_z_score(df['WASI_PIQ'], hundred_avg, hundred_std)
     # for column_name in hundred_column_names:
     #     result += series_to_z_score(df[column_name], hundred_avg, hundred_std)
 
@@ -77,7 +61,7 @@ def fetch_total_math_score(df):
 
     # Normalize the final result
     final_avg = 0
-    final_std = 6  # std == num of columns
+    final_std = len(nineteen_limit_columns) + len(hundred_column_names)  # std == num of columns
     final_result = series_to_z_score(result, final_avg, final_std)
     return final_result
 
@@ -117,9 +101,34 @@ def fetch_total_verbal_score(df):
     return final_result
 
 
+def fetch_total_memory_score(df):
+    """
+       Take the columns corresponding to memory abilities, and sum them to a total memory score
+       :return: pd.series containing a total memory score for each participant
+       """
+
+    # The following columns have a range of 40 to 160
+    column_names = ['AWMA-S_VerbalWM_StS', 'AWMA-S_VerbalSTM_StS', 'AWMA-S_VisuoSpatialSTM_StS',
+                    'AWMA-S_VisuoSpatialWM_StS']
+    score_avg = 100
+    score_std = 15
+
+    # Normalize the final result
+    final_avg = 0
+    final_std = len(column_names)
+
+    result = series_to_z_score(df['AWMA-S_VerbalWM_StS'], score_avg, score_std)
+    column_names.remove('AWMA-S_VerbalWM_StS')
+    for column_name in column_names:
+        series = convert_strings_to_numbers(df[column_name])
+        result += series_to_z_score(series, score_avg, score_std)
+
+    final_result = series_to_z_score(result, final_avg, final_std)
+    return final_result
+
+
 def calc_parents_income_level(df):
     for parent in ['father', 'mother']:
-
         # Take only the first number of occupation
         parent_jobs = df[f'{parent}_occupation'].str[0]
 
@@ -228,7 +237,6 @@ def pivot_to_subject_level(df):
 
 # Calculating capacity and improvement and total score
 def calculate_metrics(pivot_df):
-
     # Constructing Tests array
     tasks = set([col.split('_run')[0] for col in pivot_df.columns if '_run' in col])
     rel_improvement_cols = []
@@ -253,7 +261,7 @@ def calculate_metrics(pivot_df):
 
     # Total score 70% capacity and 30% relative improvement
     pivot_df['final_composite_score'] = (pivot_df['global_efficiency_index'] * 0.7) + (
-        pivot_df['total_relative_improvement'] * 0.3
+            pivot_df['total_relative_improvement'] * 0.3
     )
 
     return pivot_df

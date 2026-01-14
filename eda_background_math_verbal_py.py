@@ -40,6 +40,7 @@ def preprocess_and_compute_correlations(eda_df: pd.DataFrame) -> pd.DataFrame:
         columns={
             'total_math_score': 'math',
             'total_verbal_score': 'verbal',
+            'total_memory_score': 'memory',
             'mother_highest_grade': 'mother_HG',
             'father_highest_grade': 'father_HG',
         }

@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 
-from data_analysis import calculate_lisas, fetch_total_math_score, fetch_total_verbal_score, calc_parents_income_level
+from data_analysis import calculate_lisas, fetch_total_math_score, fetch_total_verbal_score, fetch_total_memory_score, \
+    calc_parents_income_level
 
 
 def load_raw_trial_data(root_dir='.\\trial_data'):
@@ -44,5 +45,6 @@ def load_main_dataset(file_path: str) -> pd.DataFrame:
     df = pd.read_csv(file_path)
     df['total_math_score'] = fetch_total_math_score(df)
     df['total_verbal_score'] = fetch_total_verbal_score(df)
+    df['total_memory_score'] = fetch_total_memory_score(df)
     df = calc_parents_income_level(df)
     return df
