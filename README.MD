@@ -1,6 +1,3 @@
-  > 📝 **הערה:** יש עוד עבודה לסדר את הקבצים ובעיקר לאחד את הוויזואליזציות לgraphs.py ואז יהיה אפשר לערוך את הmain שיהיה קריאות מינימליות לפונקציות של הגרפים. בנוסף מוזמנים לעבור על הREADME ולהציע שינויים בתוכן/מבנה שלו בהתאם להבנתכם את הפרוייקט . 
----
-
 # Neuro-Data Analysis: Socio-Educational Background vs. Reasoning & Math Skills
 
 ---
