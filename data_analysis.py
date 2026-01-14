@@ -1,9 +1,9 @@
-import logging as log
+import os
 
 import pandas as pd
 import numpy as np
 import logging as log
-import os
+import statsmodels.api as sm
 
 from consts import ISCO_MAPPING
 
@@ -128,11 +128,45 @@ def calc_parents_income_level(df):
         parent_jobs = parent_jobs.fillna(9)
         parent_jobs = pd.to_numeric(parent_jobs)
         parent_jobs = 9 - parent_jobs
-        df[f'{parent}_income_level'] =parent_jobs
+        df[f'{parent}_income_level'] = parent_jobs
 
         # Instead of "1=rich" flip to "1=poor"
 
     return df
+
+
+def model_stage1(df):
+    # Dependent variable
+    y = df["CMAT_BasicCalc_Comp_Quotient"]
+
+    wm_col = "AWMA-S_VerbalWM_StS_t2"
+
+    x_stage1 = df[["WASI_VIQ_t2", "WASI_PIQ_t2", "WASI_FSIQ_t2", wm_col]]
+
+    x_stage1 = sm.add_constant(x_stage1)
+
+    result = sm.OLS(y, x_stage1, missing="drop").fit()
+    return result
+
+
+def model_stage2(df):
+    y = df["CMAT_BasicCalc_Comp_Quotient"]
+    x_stage2 = df[
+        [
+            "WASI_VIQ_t2",
+            "WASI_PIQ_t2",
+            "WASI_FSIQ_t2",
+            "AWMA-S_VerbalWM_StS_t2",
+            "mother_highest_grade",
+            "father_highest_grade",
+            "regular_classroom",
+        ]
+    ]
+
+    x_stage2 = sm.add_constant(x_stage2)
+
+    result = sm.OLS(y, x_stage2, missing="drop").fit()
+    return result
 
 
 def calculate_lisas(df):

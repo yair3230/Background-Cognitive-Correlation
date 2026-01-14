@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+from data_analysis import model_stage1, model_stage2
+import statsmodels.api as sm
+import scipy.stats as stats
 
 
 def plot_correlation_heatmap(corr_matrix, title="Spearman Correlations"):
@@ -151,4 +154,73 @@ def father_income_correlation(df):
     colors = ['yellow', 'red', 'brown', 'white', 'black']
     median_scores.plot(kind='bar', color=colors, edgecolor='black')
     plt.xticks(rotation=45)
+    plt.show()
+
+
+def stage_A(df):
+
+    result = model_stage1(df)
+    print(result.summary())
+
+    print("Stage A N:", int(result.nobs))
+
+
+def stage_B(df):
+
+    result = model_stage2(df)
+    print(result.summary())
+
+
+def hierarchial_model(df):
+    stage1 = model_stage1(df)
+    stage2 = model_stage2(df)
+    delta_r2 = stage2.rsquared - stage1.rsquared
+    print(f"ΔR² (Stage B – Stage A) = {delta_r2:.3f}")
+    anova_results = sm.stats.anova_lm(stage1, stage2)
+    print(anova_results)
+
+
+def residuals_graph(df):
+    stage2 = model_stage2(df)
+    plt.figure(figsize=(6, 4))
+    plt.scatter(stage2.fittedvalues, stage2.resid, alpha=0.7)
+    plt.axhline(0, linestyle="--", linewidth=1)
+    plt.xlabel("Fitted Values")
+    plt.ylabel("Residuals")
+    plt.title("Residuals vs Fitted Values (Stage B Model)")
+    plt.tight_layout()
+    plt.show()
+
+
+def residuals_distribution_graph(df):
+    stage2 = model_stage2(df)
+    plt.figure(figsize=(6, 4))
+    sns.histplot(stage2.resid, kde=True, bins=12)
+    plt.xlabel("Residuals")
+    plt.title("Distribution of Residuals (Stage B Model)")
+    plt.tight_layout()
+    plt.show()
+
+
+def residuals_plot(df):
+    stage2 = model_stage2(df)
+    plt.figure(figsize=(5, 5))
+    stats.probplot(stage2.resid, dist="norm", plot=plt)
+    plt.title("Q–Q Plot of Residuals (Stage B Model)")
+    plt.tight_layout()
+    plt.show()
+
+
+def influence_plot(df):
+    stage2 = model_stage2(df)
+    influence = stage2.get_influence()
+    cooks = influence.cooks_distance[0]
+
+    plt.figure(figsize=(6, 4))
+    plt.stem(cooks, markerfmt=".")
+    plt.axhline(4 / len(cooks), color="red", linestyle="--")
+    plt.xlabel("Observation Index")
+    plt.ylabel("Cook's Distance")
+    plt.title("Influential Observations (Stage B Model)")
+    plt.tight_layout()
     plt.show()
