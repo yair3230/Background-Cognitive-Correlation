@@ -16,7 +16,7 @@ def series_to_z_score(series, avg, std):
 
 
 def standardize(series, invert=False):
-    z = (series - series.mean()) / series.std()
+    z = series_to_z_score(series, series.mean(), series.std())
     return z * -1 if invert else z
 
 
@@ -281,9 +281,7 @@ def merge_parental_bias(final_df, main_dataset_path):
 
     return merged
 
-
-def run_integrated_analysis():
-    # --- A. Load LISAS data (Dynamic process) ---
+def load_test_data():
     raw_list = []
     root_dir = '.\\trial_data'  # Ensure this points to your data folder
 
@@ -299,6 +297,11 @@ def run_integrated_analysis():
                     raw_list.append({'participant_id': sub_id, 'lisas': score})
                 except:
                     continue
+    return raw_list
+
+def run_integrated_analysis():
+    # --- A. Load LISAS data (Dynamic process) ---
+    raw_list = load_test_data()
 
     # Group by participant_id without converting it to index (prevents 'subject' renaming issues)
     df_lisas = pd.DataFrame(raw_list).groupby('participant_id', as_index=False)['lisas'].mean()
