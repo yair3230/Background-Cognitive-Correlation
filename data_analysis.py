@@ -141,12 +141,15 @@ def calc_parents_income_level(df):
 
 
 def model_stage1(df):
+    # 'total_verbal_score'
+    # 'total_memory_score'
+
     # Dependent variable
-    y = df["CMAT_BasicCalc_Comp_Quotient"]
+    y = df['total_math_score']
 
     wm_col = "AWMA-S_VerbalWM_StS_t2"
 
-    x_stage1 = df[["WASI_VIQ_t2", "WASI_PIQ_t2", "WASI_FSIQ_t2", wm_col]]
+    x_stage1 = df[['total_verbal_score', wm_col]]
 
     x_stage1 = sm.add_constant(x_stage1)
 
@@ -155,13 +158,10 @@ def model_stage1(df):
 
 
 def model_stage2(df):
-    y = df["CMAT_BasicCalc_Comp_Quotient"]
+    y = df['total_math_score']
     x_stage2 = df[
         [
-            "WASI_VIQ_t2",
-            "WASI_PIQ_t2",
-            "WASI_FSIQ_t2",
-            "AWMA-S_VerbalWM_StS_t2",
+            'total_verbal_score',
             "mother_highest_grade",
             "father_highest_grade",
             "regular_classroom",
