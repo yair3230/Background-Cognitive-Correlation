@@ -9,6 +9,8 @@ from consts import ISCO_MAPPING, STEM_VARS, VERBAL_VARS
 
 
 def series_to_z_score(series, avg, std):
+    if std == 0:
+        raise ZeroDivisionError('STD cannot be 0')
     # Fill na with avg
     result = series.fillna(avg)
     result = (result - avg) / std

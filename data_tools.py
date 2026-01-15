@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from data_analysis import calculate_lisas, fetch_total_math_score, fetch_total_verbal_score, fetch_total_memory_score, \
+from data_analysis import fetch_total_math_score, fetch_total_verbal_score, fetch_total_memory_score, \
     calc_parents_income_level
 
 
