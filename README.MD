@@ -35,7 +35,7 @@ How does the **socio-educational context** (SES, parental professional backgroun
 
 ### Rationale
 *   **Behavioral vs. Neural:** Unlike prior studies on this dataset that focused on neural correlates (fMRI) of reasoning, this project adopts a **behavioral-social perspective**.
-*   **Nurture vs. Nature:** We aim to quantify the incremental contribution of the *environment* to the development of specific thinking skills (Math vs. Logic).
+*   **Nurture vs. Nature:** We aim to quantify the incremental contribution of the *environment* to the development of specific thinking skills (Math and Logic).
 
 ---
 
@@ -118,3 +118,4 @@ We have implemented an integrated analysis pipeline (`data_analysis.py`) used by
         3.  Compute correlations.
         4.  Run OLS regression models.
         5.  Display all final plots.
+
