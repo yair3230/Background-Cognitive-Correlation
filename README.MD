@@ -101,10 +101,10 @@ graph LR
     B -->|Uses| C[data_analysis.py<br/>Statistical Modeling]
     C -->|Uses| D[data_tools.py<br/>Data Utilities]
     
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#bfb,stroke:#333,stroke-width:2px
-    style D fill:#fbb,stroke:#333,stroke-width:2px
+    style A fill:#f9f,stroke:#333,stroke-width:2px,color:black,font-size:16px,font-weight:bold
+    style B fill:#bbf,stroke:#333,stroke-width:2px,color:black,font-size:16px,font-weight:bold
+    style C fill:#bfb,stroke:#333,stroke-width:2px,color:black,font-size:16px,font-weight:bold
+    style D fill:#fbb,stroke:#333,stroke-width:2px,color:black,font-size:16px,font-weight:bold
 ```
 
 *   **`main.ipynb`**: Orchestrator notebook. Executes the full pipeline and renders visualizations.
