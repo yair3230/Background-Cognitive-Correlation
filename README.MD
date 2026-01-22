@@ -12,6 +12,8 @@
 
 This project investigates the relationship between a child’s **socio-educational environment** (e.g., parental background, school context) and their **cognitive/academic outcomes**, with a specific focus on **mathematical achievement** and **deductive reasoning**.
 
+We’re basically trying to figure out what matters for a child's success considering the environment they grow up in. and trying to understand what matters the most in it.
+
 ### 📚 Data Sources
 *   **Main Dataset:** [main_dataset.csv](https://github.com/yair3230/python-final-project/blob/master/main_dataset.csv) (Subject-level background & cognitive summaries).
 *   **Behavioral Logs:** [trial_data/](https://github.com/yair3230/python-final-project/tree/master/trial_data) (Trial-level performance data).
@@ -32,6 +34,7 @@ This project investigates the relationship between a child’s **socio-education
 
 ### The Core Question
 How does the **socio-educational context** (SES, parental professional background, school characteristics) relate to **mathematical performance** and **deductive reasoning**? Does this relationship remain significant even after **controlling for individual cognitive variables** (VIQ, PIQ, Working Memory)?
+> (In simpler terms: if two children have the exact same IQ and memory capacity, does the one with a STEM-oriented family still perform better at math?)
 
 ### Rationale
 *   **Behavioral vs. Neural:** Unlike prior studies on this dataset that focused on neural correlates (fMRI) of reasoning, this project adopts a **behavioral-social perspective**.
@@ -41,13 +44,13 @@ How does the **socio-educational context** (SES, parental professional backgroun
 
 ## 3. 📝 Definitions & Key Terms
 
-*   **LISAS (Linear Integrated Speed-Accuracy Score):** A metric combining response time (RT) and error rate to account for speed-accuracy tradeoffs in reasoning tasks.
+*   **LISAS (Linear Integrated Speed-Accuracy Score):** A metric combining response time (RT) and error rate to account for speed-accuracy tradeoffs in reasoning tasks. (Basically, a 'punished response time' where we penalize fast-but-wrong answers to get a true measure of ability.)
     *   *Formula used:* $RT_{mean} + \frac{S_{RT}}{S_{PE}} \times PE$ (where PE is error rate).
 *   **VIQ (Verbal IQ):** Measure of verbal reasoning ability.
 *   **PIQ (Performance IQ):** Measure of non-verbal reasoning and spatial ability.
 *   **SES (Socio-Economic Status):** Composite metric derived from parental income and education.
 *   **ISCO:** International Standard Classification of Occupations, used to map parental jobs to "STEM vs. Humanities" scores.
-*   **Cognitive Bias:** The directional difference between a child's quantitative (STEM) and verbal skills.
+*   **Cognitive Bias:** The directional difference between a child's quantitative (STEM) and verbal skills. (A score representing a student's 'tilt' - are they more 'math-brained' (positive score) or 'word-brained' (negative score)?)
 
 ---
 
@@ -59,6 +62,7 @@ How does the **socio-educational context** (SES, parental professional backgroun
     *   Mapped text-based occupation data to numerical **ISCO** scores.
     *   Aggregated sub-scales into composite **Math**, **Verbal**, and **Memory** Z-scores.
 *   **Data Integration:** Merged calculated metrics with `main_dataset.csv`.
+    > *Note: We had to normalize everything to Z-scores because you can't directly compare a reaction time in milliseconds to a parent's salary.*
 
 ### B. Exploratory Data Analysis (EDA)
 *   **Hypothesis:**
@@ -69,7 +73,7 @@ How does the **socio-educational context** (SES, parental professional backgroun
 ### C. Statistical Modeling (Hierarchical Regression)
 *   **Stage 1 (Baseline):** OLS Model predicting outcomes using only **Cognitive** variables (IQ, Memory).
 *   **Stage 2 (Extended):** Added **Socio-educational** variables (Parental Education, SES, Class Type).
-*   **Evaluation:** Tested for statistically significant increase in $R^2$ (Explained Variance).
+*   **Evaluation:** Tested for statistically significant increase in $R^2$ (Explained Variance). (We used a 'Hierarchical' approach to see the *incremental* value - does adding social info actually make the model better, or is IQ the only thing that matters?)
 *   **Diagnostics:** Analyzed residuals for normality and homoscedasticity; checked for high leverage points.
 
 ---
@@ -112,6 +116,8 @@ graph LR
 *   **`graphs.py`**: Visualization library (Heatmaps, Scatter plots, Residual plots).
 *   **`data_tools.py`**: Data utilities for handling raw datasets.
 *   **`consts.py`**: Project constants and variable definitions.
+
+> **Architecture Note:** The project is split into a 'pipeline' architecture: `data_analysis.py` handles the heavy number-crunching independently, while `main.ipynb` is kept clean for storytelling and visualization. This separation allows us to re-run models without reloading the raw data every time.
 
 ---
 
